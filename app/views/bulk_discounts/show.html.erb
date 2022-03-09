@@ -1,0 +1,5 @@
+<h1><%= @merchant.name %></h1>
+<h3>Discount: <%= @bulk_discount.id %></h3>
+<p><%= (@bulk_discount.percentage * 100).round %>% off</p>
+<p>Total Items: <%= (@bulk_discount.quantity_threshold) %></p>
+<%= link_to 'Edit', "/merchant/#{@merchant.id}/bulk_discounts/#{@bulk_discount.id}/edit", method: :get %>

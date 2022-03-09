@@ -1,0 +1,13 @@
+<h1><%= @merchant.name %></h1>
+
+<p><%= link_to "Create New Discount", "/merchant/#{@merchant.id}/bulk_discounts/new" %></p>
+
+<% @bulk_discounts.each do |discount| %>
+  Discount <%= link_to discount.id, "/merchant/#{@merchant.id}/bulk_discounts/#{discount.id}" %>: <%= (discount.percentage * 100).round %>% off for <%= discount.quantity_threshold %> items<br>
+  <%= link_to "Delete #{discount.id}", "/merchant/#{@merchant.id}/bulk_discounts/#{discount.id}", method: :delete %><br><br>
+<% end %>
+
+<h3>Upcoming Holidays:</h3>
+<% @holidays.each do |holiday| %>
+  <%= holiday.name %>
+<% end %>

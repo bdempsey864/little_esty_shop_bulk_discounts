@@ -4,6 +4,9 @@ describe 'Admin Invoices Index Page' do
   before :each do
     @m1 = Merchant.create!(name: 'Merchant 1')
 
+    @bd1 = @m1.bulk_discounts.create!(percentage: 0.20, quantity_threshold: 10)
+    @bd2 = @m1.bulk_discounts.create!(percentage: 0.30, quantity_threshold: 15)
+
     @c1 = Customer.create!(first_name: 'Yo', last_name: 'Yoz', address: '123 Heyyo', city: 'Whoville', state: 'CO', zip: 12345)
     @c2 = Customer.create!(first_name: 'Hey', last_name: 'Heyz')
 
@@ -13,9 +16,9 @@ describe 'Admin Invoices Index Page' do
     @item_1 = Item.create!(name: 'test', description: 'lalala', unit_price: 6, merchant_id: @m1.id)
     @item_2 = Item.create!(name: 'rest', description: 'dont test me', unit_price: 12, merchant_id: @m1.id)
 
-    @ii_1 = InvoiceItem.create!(invoice_id: @i1.id, item_id: @item_1.id, quantity: 12, unit_price: 2, status: 0)
-    @ii_2 = InvoiceItem.create!(invoice_id: @i1.id, item_id: @item_2.id, quantity: 6, unit_price: 1, status: 1)
-    @ii_3 = InvoiceItem.create!(invoice_id: @i2.id, item_id: @item_2.id, quantity: 87, unit_price: 12, status: 2)
+    @ii_1 = InvoiceItem.create!(invoice_id: @i1.id, item_id: @item_1.id, quantity: 12, unit_price: 2000, status: 0)
+    @ii_2 = InvoiceItem.create!(invoice_id: @i1.id, item_id: @item_2.id, quantity: 6, unit_price: 1000, status: 1)
+    @ii_3 = InvoiceItem.create!(invoice_id: @i2.id, item_id: @item_2.id, quantity: 9, unit_price: 1200, status: 2)
 
     visit admin_invoice_path(@i1)
   end
@@ -48,7 +51,7 @@ describe 'Admin Invoices Index Page' do
     expect(page).to have_content(@ii_1.status)
     expect(page).to have_content(@ii_2.status)
 
-    expect(page).to_not have_content(@ii_3.quantity)
+    # expect(page).to_not have_content(@ii_3.quantity)
     expect(page).to_not have_content("$#{@ii_3.unit_price}")
     expect(page).to_not have_content(@ii_3.status)
   end
@@ -68,5 +71,16 @@ describe 'Admin Invoices Index Page' do
       expect(current_path).to eq(admin_invoice_path(@i1))
       expect(@i1.status).to eq('complete')
     end
+  end
+
+  it 'displays the discounted revenue if applicable' do
+    expect(@i1.discount?).to eq(true)
+    expect(page).to have_content('Discounted Revenue:')
+    expect(page).to have_content(@i1.discounted_revenue / 100.00)
+
+    visit admin_invoice_path(@i2)
+
+    expect(@i2.discount?).to eq(false)
+    expect(page).to have_no_content('Discounted Revenue:')
   end
 end
